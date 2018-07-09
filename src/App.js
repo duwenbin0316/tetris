@@ -19,7 +19,10 @@ class App extends Component {
 
   componentDidMount() {
     this.ctx = this.canvas.getContext('2d')
+    this.init()
+  }
 
+  init = () => {
     // 一个方格的宽高
     this.unitLen = 15
     // X偏移(单位为块)
@@ -113,9 +116,12 @@ class App extends Component {
       }
 
       if (!isCudeRender) {
-        alert('GAME OVER!!!')
         clearInterval(this.gameTimer)
-        return
+        alert('GAME OVER!!!')
+
+        // 清空画布重新开始
+        this.ctx.clearRect(this.offsetX, this.offsetY, 30 * this.unitLen, 50 * this.unitLen)
+        this.init()
       }
     }
     this.drawCube()
