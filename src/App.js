@@ -14,7 +14,10 @@ class App extends Component {
 
   constructor() {
     super()
-    this.state = {}
+    this.state = {
+      keyEvent: false,
+      drawBorder: false
+    }
   }
 
   componentDidMount() {
@@ -40,8 +43,15 @@ class App extends Component {
   }
 
   initCanvas = () => {
+    const {drawBorder} = this.state
     // 绘制一个宽30，高50的游戏画布
-    this.ctx.strokeRect(this.offsetX - 1, this.offsetY - 1, 30*this.unitLen + 2, 50*this.unitLen + 2)
+    if (!drawBorder) {
+      this.ctx.strokeRect(this.offsetX - 1, this.offsetY - 1, 30*this.unitLen + 2, 50*this.unitLen + 2)
+
+      this.setState({
+        drawBorder: true
+      })
+    }
 
     // 记录数组
     this.resultArr = []
@@ -61,29 +71,38 @@ class App extends Component {
     this.timer()
 
     // 键盘事件
-    document.addEventListener('keydown', e => {
-      switch (e.keyCode) {
-        case 38: {
-          this.move('top')
-          break
+    const {keyEvent} = this.state
+
+    if (!keyEvent) {
+      document.addEventListener('keydown', e => {
+        switch (e.keyCode) {
+          case 38: {
+            this.move('top')
+            break
+          }
+          case 40: {
+            this.move('bottom')
+            break
+          }
+          case 37: {
+            this.move('left')
+            break
+          }
+          case 39: {
+            this.move('right')
+            break
+          }
+          default: {
+            break
+          }
         }
-        case 40: {
-          this.move('bottom')
-          break
-        }
-        case 37: {
-          this.move('left')
-          break
-        }
-        case 39: {
-          this.move('right')
-          break
-        }
-        default: {
-          break
-        }
-      }
-    })
+      })
+
+      this.setState({
+        keyEvent: true
+      })
+    }
+    
   }
 
   timer = () => {
@@ -99,31 +118,34 @@ class App extends Component {
     // 重绘方块
     if (!this.currentCube) {
       this.currentCube = this.randomCube()
+    }
 
-      // 计算生成的方块是否与已固定方块重叠
-      let isCudeRender = true
-      for (let i = 0; i < this.currentCube.length; i++) {
+    // 计算生成的方块是否与已固定方块重叠
+    let isCudeRender = true
+    for (let i = 0; i < this.currentCube.length; i++) {
 
-        if (i % 2 === 0) {
-          const cor_X = this.currentCube[i]
-          const cor_Y = this.currentCube[i + 1]
+      if (i % 2 === 0) {
+        const cor_X = this.currentCube[i]
+        const cor_Y = this.currentCube[i + 1]
 
-          if (this.resultArr[this.currentY + cor_Y][this.currentX + cor_X].flag === 1) {
-            isCudeRender = false
-            break
-          }
+        if (this.resultArr[this.currentY + cor_Y][this.currentX + cor_X].flag === 1) {
+          isCudeRender = false
+          break
         }
       }
-
-      if (!isCudeRender) {
-        clearInterval(this.gameTimer)
-        alert('GAME OVER!!!')
-
-        // 清空画布重新开始
-        this.ctx.clearRect(this.offsetX, this.offsetY, 30 * this.unitLen, 50 * this.unitLen)
-        this.init()
-      }
     }
+
+    if (!isCudeRender) {
+      clearInterval(this.gameTimer)
+      // 清空画布重新开始
+      this.ctx.clearRect(this.offsetX, this.offsetY, 30 * this.unitLen, 50 * this.unitLen)
+      this.init()
+
+      alert('GAME OVER!!!')
+
+      return
+    }
+
     this.drawCube()
   }
 
@@ -194,7 +216,7 @@ class App extends Component {
   
   clearCurrentCube = () => {
     
-    if (!this.currentCube) {
+    if (!this.currentCube || this.currentY === -1) {
       return
     }
     // 清除当前方块
