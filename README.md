@@ -1,3 +1,11 @@
 # 俄罗斯方块demo
 
-基于canvas实现的小游戏
+用canvas实现的小游戏<br/>
+项目采用create-react-app创建
+
+## 运行
+```
+npm start
+```
+
+
